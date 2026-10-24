@@ -1,0 +1,1072 @@
+const STORAGE_KEYS = {
+  products: 'nexaProducts',
+  cart: 'nexaCart',
+  orders: 'nexaOrders',
+  clients: 'nexaClients',
+  coupons: 'nexaCoupons'
+};
+
+const initialProducts = [
+  {
+    id: 1,
+    name: 'Camiseta Signature',
+    category: 'Ropa',
+    price: 24900,
+    stock: 18,
+    description: 'Camiseta premium de algodón con corte relajado y excelente caída.',
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
+    featured: true,
+    colors: ['Blanco', 'Negro', 'Gris'],
+    sizes: ['S', 'M', 'L', 'XL']
+  },
+  {
+    id: 2,
+    name: 'Buzo Urban Core',
+    category: 'Ropa',
+    price: 42900,
+    stock: 12,
+    description: 'Buzo de alta densidad ideal para todos los días con detalle premium.',
+    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=80',
+    featured: true,
+    colors: ['Azul', 'Verde', 'Negro'],
+    sizes: ['S', 'M', 'L', 'XL']
+  },
+  {
+    id: 3,
+    name: 'Zapatillas Velocity',
+    category: 'Calzado',
+    price: 58900,
+    stock: 8,
+    description: 'Modelo cómodo con suela ligera, ideal para caminar y combinar estilos.',
+    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80',
+    featured: true,
+    colors: ['Blanco', 'Azul', 'Rojo'],
+    sizes: ['36', '37', '38', '39', '40', '41']
+  },
+  {
+    id: 4,
+    name: 'Mochila Travel Pro',
+    category: 'Accesorios',
+    price: 34900,
+    stock: 21,
+    description: 'Mochila resistente con compartimentos para trabajo, viajes y estudio.',
+    image: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900&q=80',
+    featured: true,
+    colors: ['Negro', 'Gris', 'Verde'],
+    sizes: ['Único']
+  },
+  {
+    id: 5,
+    name: 'Pantalón Cargo Flex',
+    category: 'Ropa',
+    price: 31900,
+    stock: 15,
+    description: 'Pantalón funcional con cintura cómoda y detalles premium para uso diario.',
+    image: 'https://images.unsplash.com/photo-1475180098004-ca77a66827be?auto=format&fit=crop&w=900&q=80',
+    featured: false,
+    colors: ['Beige', 'Negro', 'Oliva'],
+    sizes: ['S', 'M', 'L', 'XL']
+  },
+  {
+    id: 6,
+    name: 'Gorra North Peak',
+    category: 'Accesorios',
+    price: 18900,
+    stock: 40,
+    description: 'Gorra ligera con ajuste cómodo y diseño urbano para cada día.',
+    image: 'https://images.unsplash.com/photo-1521369909026-2afed882baee?auto=format&fit=crop&w=900&q=80',
+    featured: false,
+    colors: ['Negro', 'Blanco', 'Naranja'],
+    sizes: ['Único']
+  },
+  {
+    id: 7,
+    name: 'Campera Storm Tech',
+    category: 'Abrigos',
+    price: 68900,
+    stock: 7,
+    description: 'Campera impermeable con diseño moderno para clima variable.',
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80',
+    featured: false,
+    colors: ['Marrón', 'Negro', 'Verde'],
+    sizes: ['S', 'M', 'L', 'XL']
+  },
+  {
+    id: 8,
+    name: 'Remera Everyday',
+    category: 'Ropa',
+    price: 21900,
+    stock: 26,
+    description: 'Remera básica con algodón orgánico y excelente sensación al tacto.',
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
+    featured: false,
+    colors: ['Blanco', 'Azul', 'Rojo'],
+    sizes: ['S', 'M', 'L', 'XL']
+  }
+];
+
+const defaultOrders = [
+  {
+    id: 'PED-1001',
+    customer: 'María López',
+    email: 'maria@correo.com',
+    total: 57800,
+    status: 'pagado',
+    date: '2026-10-20',
+    items: 2
+  },
+  {
+    id: 'PED-1002',
+    customer: 'Juan Pérez',
+    email: 'juan@correo.com',
+    total: 42300,
+    status: 'pendiente',
+    date: '2026-10-22',
+    items: 1
+  }
+];
+
+const defaultClients = [
+  { name: 'María López', email: 'maria@correo.com', city: 'Córdoba', role: 'Cliente premium' },
+  { name: 'Juan Pérez', email: 'juan@correo.com', city: 'Buenos Aires', role: 'Cliente frecuente' },
+  { name: 'Lucía García', email: 'lucia@correo.com', city: 'Rosario', role: 'Administrador' }
+];
+
+const defaultCoupons = [
+  { code: 'WELCOME10', discount: 10 },
+  { code: 'ENVIOFREE', discount: 15 },
+  { code: 'VIP20', discount: 20 }
+];
+
+function loadState(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveState(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+const state = {
+  view: 'home',
+  selectedProductId: null,
+  searchTerm: '',
+  categoryFilter: 'Todos',
+  adminTab: 'products',
+  cart: loadState(STORAGE_KEYS.cart, []),
+  products: loadState(STORAGE_KEYS.products, initialProducts),
+  orders: loadState(STORAGE_KEYS.orders, defaultOrders),
+  clients: loadState(STORAGE_KEYS.clients, defaultClients),
+  coupons: loadState(STORAGE_KEYS.coupons, defaultCoupons),
+  selectedVariant: {},
+  notice: ''
+};
+
+function formatPrice(value) {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function saveAll() {
+  saveState(STORAGE_KEYS.products, state.products);
+  saveState(STORAGE_KEYS.cart, state.cart);
+  saveState(STORAGE_KEYS.orders, state.orders);
+  saveState(STORAGE_KEYS.clients, state.clients);
+  saveState(STORAGE_KEYS.coupons, state.coupons);
+}
+
+function addToCart(productId, customVariant = null) {
+  const product = state.products.find((item) => item.id === productId);
+  if (!product) return;
+
+  const defaultVariant = {
+    color: product.colors[0],
+    size: product.sizes[0]
+  };
+
+  const variant = customVariant || state.selectedVariant[productId] || defaultVariant;
+
+  const itemIndex = state.cart.findIndex(
+    (item) => item.productId === productId && item.color === variant.color && item.size === variant.size
+  );
+
+  if (itemIndex >= 0) {
+    state.cart[itemIndex].qty += 1;
+  } else {
+    state.cart.push({
+      productId,
+      qty: 1,
+      color: variant.color,
+      size: variant.size
+    });
+  }
+
+  state.notice = `${product.name} agregado al carrito.`;
+  saveAll();
+  render();
+}
+
+function updateQty(productId, color, size, delta) {
+  const index = state.cart.findIndex(
+    (item) => item.productId === productId && item.color === color && item.size === size
+  );
+
+  if (index === -1) return;
+
+  state.cart[index].qty += delta;
+  if (state.cart[index].qty <= 0) {
+    state.cart.splice(index, 1);
+  }
+
+  saveAll();
+  render();
+}
+
+function removeFromCart(productId, color, size) {
+  state.cart = state.cart.filter(
+    (item) => !(item.productId === productId && item.color === color && item.size === size)
+  );
+  saveAll();
+  render();
+}
+
+function getCartItems() {
+  return state.cart.map((cartItem) => {
+    const product = state.products.find((item) => item.id === cartItem.productId);
+    return {
+      ...cartItem,
+      product
+    };
+  }).filter((item) => item.product);
+}
+
+function subtotalCart() {
+  return getCartItems().reduce((sum, item) => sum + item.product.price * item.qty, 0);
+}
+
+function cartCount() {
+  return state.cart.reduce((sum, item) => sum + item.qty, 0);
+}
+
+function handleCheckout(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const name = formData.get('name');
+  const email = formData.get('email');
+  const city = formData.get('city');
+  const shipping = formData.get('shipping');
+  const payment = formData.get('payment');
+
+  if (!state.cart.length) {
+    state.notice = 'Tu carrito está vacío.';
+    render();
+    return;
+  }
+
+  const orderId = `PED-${Date.now().toString().slice(-5)}`;
+  const total = subtotalCart() + (shipping === 'retiro' ? 0 : 2200);
+
+  const order = {
+    id: orderId,
+    customer: name,
+    email,
+    city,
+    total,
+    status: payment === 'mercadopago' ? 'pagado' : 'pendiente',
+    date: new Date().toISOString().slice(0, 10),
+    items: state.cart.reduce((sum, item) => sum + item.qty, 0),
+    shipping,
+    payment
+  };
+
+  state.orders.unshift(order);
+  state.clients = state.clients.some((entry) => entry.email === email)
+    ? state.clients
+    : [{ name, email, city, role: 'Nuevo cliente' }, ...state.clients];
+
+  getCartItems().forEach(({ product, qty, color, size }) => {
+    const target = state.products.find((item) => item.id === product.id);
+    if (target) {
+      target.stock = Math.max(0, target.stock - qty);
+    }
+  });
+
+  state.cart = [];
+  state.notice = `Pedido ${orderId} registrado con éxito.`;
+  saveAll();
+  state.view = 'catalog';
+  render();
+}
+
+function updateOrderStatus(orderId, nextStatus) {
+  state.orders = state.orders.map((order) =>
+    order.id === orderId ? { ...order, status: nextStatus } : order
+  );
+  saveAll();
+  render();
+}
+
+function addProduct(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const product = {
+    id: Date.now(),
+    name: formData.get('name'),
+    category: formData.get('category'),
+    price: Number(formData.get('price')),
+    stock: Number(formData.get('stock')),
+    description: formData.get('description') || 'Producto agregado desde el panel administrativo.',
+    image: formData.get('image') || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
+    featured: false,
+    colors: ['Unicolor'],
+    sizes: ['Único']
+  };
+
+  if (!product.name) return;
+
+  state.products.unshift(product);
+  saveAll();
+  event.target.reset();
+  render();
+}
+
+function renderStatCards() {
+  const totalRevenue = state.orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  const totalProducts = state.products.length;
+  const activeOrders = state.orders.filter((order) => order.status !== 'cancelado').length;
+
+  return `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Ventas</h3>
+        <p><strong>${formatPrice(totalRevenue)}</strong></p>
+      </div>
+      <div class="stat-card">
+        <h3>Pedidos</h3>
+        <p><strong>${activeOrders}</strong></p>
+      </div>
+      <div class="stat-card">
+        <h3>Productos</h3>
+        <p><strong>${totalProducts}</strong></p>
+      </div>
+      <div class="stat-card">
+        <h3>Clientes</h3>
+        <p><strong>${state.clients.length}</strong></p>
+      </div>
+    </div>
+  `;
+}
+
+function renderHome() {
+  const featured = state.products.filter((product) => product.featured).slice(0, 4);
+
+  return `
+    <section class="page-section hero">
+      <div class="hero-copy">
+        <span class="hero-kicker">Nuevo catálogo • entrega rápida</span>
+        <h1>Tu próxima compra comienza aquí.</h1>
+        <p>
+          Una tienda online diseñada para vender mejor: catálogo premium, carrito inteligente,
+          pagos sencillos y un panel administrativo que permite gestionar pedidos y stock sin depender de un desarrollador.
+        </p>
+        <div class="hero-actions">
+          <button class="primary-button" data-action="nav" data-view="catalog">Ver catálogo</button>
+          <button class="secondary-button" data-action="nav" data-view="admin">Administrar</button>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <strong>+15k</strong>
+            <span>ventas</span>
+          </div>
+          <div class="metric">
+            <strong>4.9/5</strong>
+            <span>calificación</span>
+          </div>
+          <div class="metric">
+            <strong>24h</strong>
+            <span>atención</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80" alt="Personas comprando online" />
+        <div class="image-badge">
+          <strong>Mercado Pago</strong>
+          <span>Integración lista para producción</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="section-heading">
+        <h2>Productos destacados</h2>
+        <button class="secondary-button" data-action="nav" data-view="catalog">Ver todos</button>
+      </div>
+      <div class="featured-grid">
+        ${featured.map((product) => `
+          <article class="product-card">
+            <img src="${product.image}" alt="${product.name}" />
+            <div class="product-card-body">
+              <div class="product-card-head">
+                <span class="product-label">${product.category}</span>
+                <span class="price">${formatPrice(product.price)}</span>
+              </div>
+              <h3>${product.name}</h3>
+              <div class="product-meta">
+                <span>${product.stock} disponibles</span>
+                <button class="action-button" data-action="quick-add" data-product-id="${product.id}">Agregar</button>
+              </div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="section-heading">
+        <h2>Qué incluye este proyecto</h2>
+      </div>
+      <div class="benefit-grid">
+        <div class="benefit-card">
+          <h3>Catálogo</h3>
+          <p>Filtros, buscador, categorías y variantes para ofrecer una experiencia de compra fluida.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Checkout</h3>
+          <p>Resumen del pedido, envío, datos del cliente y pasarela para cobro online.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Administración</h3>
+          <p>Gestión de productos, stock, clientes y pedidos desde un panel centralizado.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>SEO</h3>
+          <p>Meta tags, sitemaps, robots y estructura preparada para posicionamiento técnico.</p>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderCatalog() {
+  const filteredProducts = state.products.filter((product) => {
+    const matchesCategory = state.categoryFilter === 'Todos' || product.category === state.categoryFilter;
+    const query = state.searchTerm.toLowerCase();
+    const matchesSearch = !query || product.name.toLowerCase().includes(query) || product.description.toLowerCase().includes(query);
+    return matchesCategory && matchesSearch;
+  });
+
+  const categories = ['Todos', ...new Set(state.products.map((product) => product.category))];
+
+  return `
+    <section class="page-section">
+      <div class="catalog-shell">
+        <div class="catalog-layout">
+          <aside class="filter-panel">
+            <h3>Filtros</h3>
+            <div class="search-wrap">
+              <label class="input-label">
+                Buscar producto
+                <input
+                  class="search-input"
+                  type="text"
+                  placeholder="Buscar por nombre o descripción"
+                  value="${state.searchTerm}"
+                  data-action="search"
+                />
+              </label>
+            </div>
+
+            <div class="filter-group">
+              ${categories.map((category) => `
+                <button
+                  class="filter-chip ${state.categoryFilter === category ? 'active' : ''}"
+                  data-action="filter-category"
+                  data-category="${category}"
+                >
+                  ${category}
+                </button>
+              `).join('')}
+            </div>
+          </aside>
+
+          <div>
+            <div class="section-heading">
+              <h2>Catálogo</h2>
+              <strong>${filteredProducts.length} productos</strong>
+            </div>
+
+            <div class="product-grid">
+              ${filteredProducts.length
+                ? filteredProducts.map((product) => `
+                    <article class="product-card">
+                      <img src="${product.image}" alt="${product.name}" data-action="open-product" data-product-id="${product.id}" />
+                      <div class="product-card-body">
+                        <div class="product-card-head">
+                          <span class="product-label">${product.category}</span>
+                          <span class="price">${formatPrice(product.price)}</span>
+                        </div>
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <div class="product-meta">
+                          <span>${product.stock} disponibles</span>
+                          <div class="inline-actions">
+                            <button class="ghost-button" data-action="open-product" data-product-id="${product.id}">Ver</button>
+                            <button class="action-button" data-action="quick-add" data-product-id="${product.id}">Agregar</button>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  `).join('')
+                : `<div class="empty-state"><p>No encontramos productos con ese filtro.</p></div>`}
+              </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderProduct() {
+  const product = state.products.find((item) => item.id === state.selectedProductId);
+  if (!product) return renderCatalog();
+
+  const selectedVariant = state.selectedVariant[product.id] || {
+    color: product.colors[0],
+    size: product.sizes[0]
+  };
+
+  return `
+    <section class="page-section">
+      <div class="product-layout">
+        <div class="product-detail">
+          <div class="product-gallery">
+            <img src="${product.image}" alt="${product.name}" />
+          </div>
+          <div class="product-info">
+            <div class="label-row">
+              <span class="product-label">${product.category}</span>
+              <span class="product-label">Stock: ${product.stock}</span>
+            </div>
+            <h1>${product.name}</h1>
+            <p>${product.description}</p>
+
+            <div class="price-line">
+              <span class="price">${formatPrice(product.price)}</span>
+              <span class="item-meta">Envíos a todo el país</span>
+            </div>
+
+            <div class="variant-group">
+              <strong>Color</strong>
+              <div class="variant-row">
+                ${product.colors.map((color) => `
+                  <button
+                    class="badge-button ${selectedVariant.color === color ? 'active' : ''}"
+                    data-action="select-color"
+                    data-product-id="${product.id}"
+                    data-color="${color}"
+                  >
+                    ${color}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="variant-group">
+              <strong>Talle</strong>
+              <div class="variant-row">
+                ${product.sizes.map((size) => `
+                  <button
+                    class="badge-button ${selectedVariant.size === size ? 'active' : ''}"
+                    data-action="select-size"
+                    data-product-id="${product.id}"
+                    data-size="${size}"
+                  >
+                    ${size}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="product-actions">
+              <button class="primary-button" data-action="add-selected-to-cart" data-product-id="${product.id}">Agregar al carrito</button>
+              <button class="secondary-button" data-action="nav" data-view="catalog">Seguir comprando</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderCart() {
+  const items = getCartItems();
+  const subtotal = subtotalCart();
+  const shipping = items.length ? 2200 : 0;
+  const total = subtotal + shipping;
+
+  return `
+    <section class="page-section">
+      <div class="section-heading">
+        <h2>Carrito</h2>
+      </div>
+
+      <div class="cart-layout">
+        <div class="cart-items">
+          ${items.length ? items.map((item) => `
+            <div class="cart-item">
+              <img src="${item.product.image}" alt="${item.product.name}" />
+              <div>
+                <h4>${item.product.name}</h4>
+                <div class="item-meta">Color: ${item.color} • Talle: ${item.size}</div>
+                <div class="item-qty">
+                  <button class="qty-button" data-action="qty-change" data-product-id="${item.productId}" data-color="${item.color}" data-size="${item.size}" data-delta="-1">-</button>
+                  <span>${item.qty}</span>
+                  <button class="qty-button" data-action="qty-change" data-product-id="${item.productId}" data-color="${item.color}" data-size="${item.size}" data-delta="1">+</button>
+                </div>
+              </div>
+              <div class="item-price">
+                <strong>${formatPrice(item.product.price * item.qty)}</strong>
+                <div class="inline-actions">
+                  <button class="ghost-button" data-action="remove-item" data-product-id="${item.productId}" data-color="${item.color}" data-size="${item.size}">Eliminar</button>
+                </div>
+              </div>
+            </div>
+          `).join('') : `<div class="empty-state"><p>Tu carrito está vacío. Explora el catálogo para continuar.</p></div>`}
+        </div>
+
+        <aside class="summary-card">
+          <h3>Resumen</h3>
+          <div class="summary-row"><span>Subtotal</span><strong>${formatPrice(subtotal)}</strong></div>
+          <div class="summary-row"><span>Envío</span><strong>${formatPrice(shipping)}</strong></div>
+          <div class="total-row"><span>Total</span><strong>${formatPrice(total)}</strong></div>
+          <div class="inline-actions">
+            <button class="primary-button" data-action="nav" data-view="checkout" ${items.length ? '' : 'disabled'}>Ir al checkout</button>
+            <button class="secondary-button" data-action="nav" data-view="catalog">Seguir comprando</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  `;
+}
+
+function renderCheckout() {
+  const items = getCartItems();
+  const subtotal = subtotalCart();
+  const shipping = items.length ? 2200 : 0;
+  const total = subtotal + shipping;
+
+  return `
+    <section class="page-section">
+      <div class="section-heading">
+        <h2>Checkout</h2>
+      </div>
+
+      <div class="checkout-layout">
+        <div class="form-card">
+          <form id="checkout-form">
+            <div class="inline-grid">
+              <label class="input-label">
+                Nombre y apellido
+                <input class="field" type="text" name="name" placeholder="Ej: Sofía Gómez" required />
+              </label>
+              <label class="input-label">
+                Email
+                <input class="field" type="email" name="email" placeholder="Ej: sofiagomez@mail.com" required />
+              </label>
+            </div>
+
+            <div class="inline-grid">
+              <label class="input-label">
+                Ciudad
+                <input class="field" type="text" name="city" placeholder="Ej: Córdoba" required />
+              </label>
+              <label class="input-label">
+                Método de envío
+                <select class="select-field" name="shipping">
+                  <option value="envio">Envío estándar</option>
+                  <option value="retiro">Retiro en local</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="input-label">
+              Método de pago
+              <select class="select-field" name="payment">
+                <option value="mercadopago">Mercado Pago</option>
+                <option value="transferencia">Transferencia bancaria</option>
+                <option value="efectivo">Efectivo</option>
+              </select>
+            </label>
+
+            <label class="input-label">
+              Comentarios
+              <textarea class="textarea-field" name="comments" rows="4" placeholder="Indicaciones de entrega, aclaraciones, etc."></textarea>
+            </label>
+
+            <button class="primary-button" type="submit">Finalizar compra</button>
+          </form>
+        </div>
+
+        <aside class="summary-card">
+          <h3>Tu pedido</h3>
+          ${items.map((item) => `
+            <div class="summary-row">
+              <span>${item.product.name} x ${item.qty}</span>
+              <strong>${formatPrice(item.product.price * item.qty)}</strong>
+            </div>
+          `).join('')}
+          <div class="summary-row"><span>Subtotal</span><strong>${formatPrice(subtotal)}</strong></div>
+          <div class="summary-row"><span>Envío</span><strong>${formatPrice(shipping)}</strong></div>
+          <div class="total-row"><span>Total</span><strong>${formatPrice(total)}</strong></div>
+        </aside>
+      </div>
+    </section>
+  `;
+}
+
+function renderAdmin() {
+  const revenue = state.orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+
+  return `
+    <section class="page-section">
+      <div class="admin-layout">
+        <aside class="admin-menu">
+          <button class="admin-button ${state.adminTab === 'products' ? 'active' : ''}" data-action="admin-tab" data-tab="products">Productos</button>
+          <button class="admin-button ${state.adminTab === 'orders' ? 'active' : ''}" data-action="admin-tab" data-tab="orders">Pedidos</button>
+          <button class="admin-button ${state.adminTab === 'clients' ? 'active' : ''}" data-action="admin-tab" data-tab="clients">Clientes</button>
+          <button class="admin-button ${state.adminTab === 'coupons' ? 'active' : ''}" data-action="admin-tab" data-tab="coupons">Cupones</button>
+        </aside>
+
+        <div class="admin-panel">
+          ${renderAdminContent()} 
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminContent() {
+  if (state.adminTab === 'orders') {
+    return `
+      ${renderStatCards()}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.orders.map((order) => `
+              <tr>
+                <td>${order.id}</td>
+                <td>${order.customer}</td>
+                <td>${order.date}</td>
+                <td>${formatPrice(order.total)}</td>
+                <td>
+                  <select class="status-select" data-action="update-status" data-order-id="${order.id}">
+                    <option value="pagado" ${order.status === 'pagado' ? 'selected' : ''}>Pagado</option>
+                    <option value="pendiente" ${order.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                    <option value="enviado" ${order.status === 'enviado' ? 'selected' : ''}>Enviado</option>
+                    <option value="cancelado" ${order.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                  </select>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  if (state.adminTab === 'clients') {
+    return `
+      ${renderStatCards()}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Ciudad</th>
+              <th>Rol</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.clients.map((client) => `
+              <tr>
+                <td>${client.name}</td>
+                <td>${client.email}</td>
+                <td>${client.city}</td>
+                <td>${client.role}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  if (state.adminTab === 'coupons') {
+    return `
+      ${renderStatCards()}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descuento</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.coupons.map((coupon) => `
+              <tr>
+                <td>${coupon.code}</td>
+                <td>${coupon.discount}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  return `
+    ${renderStatCards()}
+    <div class="admin-header">
+      <h3>Agregar producto</h3>
+    </div>
+    <form id="product-form" class="form-card" style="margin-bottom:20px;">
+      <div class="inline-grid">
+        <label class="input-label">
+          Nombre
+          <input class="field" type="text" name="name" required />
+        </label>
+        <label class="input-label">
+          Categoría
+          <input class="field" type="text" name="category" required />
+        </label>
+      </div>
+      <div class="inline-grid">
+        <label class="input-label">
+          Precio
+          <input class="field" type="number" name="price" min="1" required />
+        </label>
+        <label class="input-label">
+          Stock
+          <input class="field" type="number" name="stock" min="0" required />
+        </label>
+      </div>
+      <label class="input-label">
+        URL de imagen
+        <input class="field" type="url" name="image" placeholder="https://..." />
+      </label>
+      <label class="input-label">
+        Descripción
+        <textarea class="textarea-field" name="description" rows="3"></textarea>
+      </label>
+      <button class="primary-button" type="submit">Guardar producto</button>
+    </form>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${state.products.map((product) => `
+            <tr>
+              <td>${product.name}</td>
+              <td>${product.category}</td>
+              <td>${product.stock}</td>
+              <td>${formatPrice(product.price)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderContact() {
+  return `
+    <section class="page-section">
+      <div class="section-heading">
+        <h2>Contacto</h2>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-card">
+          <h3>Atención al cliente</h3>
+          <p>Estamos listos para ayudarte con consultas, asesoramiento y soporte postventa.</p>
+          <div class="product-actions">
+            <a class="primary-button" href="mailto:ventas@nexastore.com.ar">ventas@nexastore.com.ar</a>
+            <a class="secondary-button" href="tel:+5493512345678">+54 9 351 234 5678</a>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <h3>Envíanos un mensaje</h3>
+          <form>
+            <label class="input-label">
+              Nombre
+              <input class="field" type="text" placeholder="Tu nombre" />
+            </label>
+            <label class="input-label">
+              Email
+              <input class="field" type="email" placeholder="Tu email" />
+            </label>
+            <label class="input-label">
+              Mensaje
+              <textarea class="textarea-field" rows="4" placeholder="Escribí tu consulta..."></textarea>
+            </label>
+            <button class="primary-button" type="button">Enviar</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const viewMap = {
+    home: renderHome,
+    catalog: renderCatalog,
+    product: renderProduct,
+    cart: renderCart,
+    checkout: renderCheckout,
+    admin: renderAdmin,
+    contact: renderContact
+  };
+
+  const navButtons = document.querySelectorAll('.nav-button');
+  navButtons.forEach((button) => {
+    const isActive = button.dataset.view === state.view;
+    button.classList.toggle('active', isActive);
+  });
+
+  document.getElementById('cart-counter').textContent = cartCount();
+
+  app.innerHTML = `
+    ${state.notice ? `<div class="notice" style="margin:20px 0; padding:14px 16px; background:#ecfdf5; color:#166534; border:1px solid #a7f3d0; border-radius:12px; font-weight:600;">${state.notice}</div>` : ''}
+    ${viewMap[state.view]()}
+  `;
+}
+
+function attachEvents() {
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+
+    const action = button.dataset.action;
+
+    if (action === 'nav') {
+      state.view = button.dataset.view;
+      state.notice = '';
+      render();
+      return;
+    }
+
+    if (action === 'quick-add') {
+      addToCart(Number(button.dataset.productId));
+      return;
+    }
+
+    if (action === 'open-product') {
+      state.selectedProductId = Number(button.dataset.productId);
+      state.view = 'product';
+      render();
+      return;
+    }
+
+    if (action === 'select-color' || action === 'select-size') {
+      const productId = Number(button.dataset.productId);
+      if (!state.selectedVariant[productId]) {
+        state.selectedVariant[productId] = {};
+      }
+      if (action === 'select-color') {
+        state.selectedVariant[productId].color = button.dataset.color;
+      }
+      if (action === 'select-size') {
+        state.selectedVariant[productId].size = button.dataset.size;
+      }
+      render();
+      return;
+    }
+
+    if (action === 'add-selected-to-cart') {
+      addToCart(Number(button.dataset.productId));
+      return;
+    }
+
+    if (action === 'qty-change') {
+      updateQty(Number(button.dataset.productId), button.dataset.color, button.dataset.size, Number(button.dataset.delta));
+      return;
+    }
+
+    if (action === 'remove-item') {
+      removeFromCart(Number(button.dataset.productId), button.dataset.color, button.dataset.size);
+      return;
+    }
+
+    if (action === 'admin-tab') {
+      state.adminTab = button.dataset.tab;
+      render();
+      return;
+    }
+
+    if (action === 'filter-category') {
+      state.categoryFilter = button.dataset.category;
+      render();
+      return;
+    }
+  });
+
+  document.addEventListener('input', (event) => {
+    const target = event.target;
+    if (target.dataset.action === 'search') {
+      state.searchTerm = target.value.trim();
+      render();
+    }
+  });
+
+  document.addEventListener('submit', (event) => {
+    if (event.target.id === 'checkout-form') {
+      handleCheckout(event);
+    }
+
+    if (event.target.id === 'product-form') {
+      addProduct(event);
+    }
+  });
+
+  document.addEventListener('change', (event) => {
+    if (event.target.matches('[data-action="update-status"]')) {
+      updateOrderStatus(event.target.dataset.orderId, event.target.value);
+    }
+  });
+}
+
+attachEvents();
+render();

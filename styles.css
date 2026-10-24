@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Tienda online moderna con catálogo, carrito, checkout, pasarela de pago Mercadopago y panel administrativo para gestionar productos y pedidos."
+    />
+    <meta name="theme-color" content="#1f2937" />
+    <meta property="og:title" content="Nexa Store | Tienda online" />
+    <meta
+      property="og:description"
+      content="Catalogo, carrito, checkout y administración para una tienda online profesional."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Nexa Store | Tienda online</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="brand-wrap">
+          <div class="brand-mark">N</div>
+          <div>
+            <strong>Nexa Store</strong>
+            <small>Moda & lifestyle</small>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Navegación principal">
+          <button class="nav-button active" data-action="nav" data-view="home">Inicio</button>
+          <button class="nav-button" data-action="nav" data-view="catalog">Catálogo</button>
+          <button class="nav-button" data-action="nav" data-view="admin">Admin</button>
+          <button class="nav-button" data-action="nav" data-view="contact">Contacto</button>
+        </nav>
+
+        <div class="header-actions">
+          <button class="secondary-button" data-action="nav" data-view="catalog">Explorar</button>
+          <button class="cart-button" data-action="nav" data-view="cart">
+            Carrito <span id="cart-counter" class="cart-counter">0</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="app" aria-live="polite"></main>
+
+      <footer class="site-footer">
+        <div>
+          <strong>Nexa Store</strong>
+          <p>Envíos a todo el país • Pago seguro • Atención personalizada</p>
+        </div>
+        <div class="footer-links">
+          <a href="#" data-action="nav" data-view="catalog">Catálogo</a>
+          <a href="#" data-action="nav" data-view="admin">Admin</a>
+          <a href="#" data-action="nav" data-view="contact">Contacto</a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
